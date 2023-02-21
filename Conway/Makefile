@@ -4,10 +4,10 @@ SRCS := main.c
 EXEC := tex.out
 OBJS := $(SRCS:.c=.o)
 
-all: $(EXEC)
+all: $(EXEC) clean
 $(EXEC): $(OBJS)
 	$(CC) -o $@ $(OBJS) $(CFLAGS)
 
 clean:
-	rm -f $(EXEC) $(OBJS)
-.PHONY: all clean
+	rm -f $(OBJS)
+.PHONY: clean
