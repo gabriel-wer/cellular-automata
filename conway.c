@@ -10,7 +10,6 @@
 #define DEAD "."
 #define ALIVE "O"
 
-
 int **generate_map(){
     int **map;
     map = malloc(sizeof(int *) * ROWS);
@@ -61,7 +60,7 @@ int main(void){
     bool running = true;
     while (running){
         calculate(board);
-        sleep(1);
+        sleep(0.5);
         system("clear");
     }
     free(board);
