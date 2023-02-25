@@ -16,20 +16,16 @@
 #define CELLSIZE 20
 
 
-int **generate_map(){
-    int **map;
-    map = malloc(sizeof(int *) * COLUMNS);
+void generate_map(int *map){
     srand(time(0));
     for (int i=0; i < COLUMNS; i++){
-        map[i] = malloc(sizeof(int) * ROWS);
         for (int j=0; j < ROWS; j++){ 
-            map[i][j] = rand() % 2; 
+            map[i * ROWS + j] = rand() % 2; 
         }
     }
-    return map;
 }
 
-void detect_collision(int **board, int i, int j){
+void detect_collision(int *board, int i, int j){
     int count = 0;
     for (int x=i-1; x<=i+1; x++){
         for (int y=j-1; y<=j+1; y++){
@@ -41,34 +37,34 @@ void detect_collision(int **board, int i, int j){
             if (x == i && y == j) { continue; }
 
             //count neighbours
-            if (board[x][y] == 1) { 
+            if (board[x * ROWS + y] == 1) { 
                 count += 1; 
             }
         }
     }
-    if (count == 3) { board[i][j] = 1; }
-    if (count > 3 || count < 2) { board[i][j] = 0; }
+    if (count == 3) { board[i * ROWS + j] = 1; }
+    if (count > 3 || count < 2) { board[i * ROWS + j] = 0; }
 }
 
 int main(void){
     SDL_Window* window;
-    window = SDL_CreateWindow("Testando", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Conway's Game of Life", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, CELLSIZE*ROWS, CELLSIZE*COLUMNS, SDL_WINDOW_SHOWN);
 
     // setup renderer
     SDL_Renderer* renderer = NULL;
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    int **board = generate_map();
+    int *board = malloc((COLUMNS * ROWS) * sizeof(int));
+    generate_map(board);
 
     SDL_Event event;
     bool running = true;
     while (running){
-        float start = SDL_GetPerformanceCounter();
         SDL_RenderClear(renderer);
-        for (int j=0; j < ROWS; j++){
-            for (int i=0; i < COLUMNS; i++){
+        for (int i=0; i < COLUMNS; i++){
+            for (int j=0; j < ROWS; j++){
                 detect_collision(board, i, j);
-                if (board[i][j] == 1){
+                if (board[i * ROWS + j] == 1){
                     SDL_Rect r; 
                     r.x = j*CELLSIZE;
                     r.y = i*CELLSIZE;
@@ -94,10 +90,9 @@ int main(void){
                     break;
             }
         }
-        float end = SDL_GetPerformanceCounter();
-        float elapsedMS = (end - start) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
-        SDL_Delay(floor(16.666f - elapsedMS));
+        SDL_Delay(100);
     }
+    free(board);
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
